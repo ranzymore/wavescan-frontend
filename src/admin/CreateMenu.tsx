@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Package, FolderOpen } from "lucide-react";
 import ClipLoader from "react-spinners/ClipLoader";
+import { toast, Toaster } from "react-hot-toast";
 
 type ProductType = {
   id?: string;
@@ -22,18 +23,27 @@ const CreateMenuPage = () => {
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [newProduct, setNewProduct] = useState({ name: "", price: "" });
   const [newCategory, setNewCategory] = useState("");
-  const [loadingCategory, setLoadingCategory] = useState(false);
+  
+  // Separate loading states for better UX
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [addingProduct, setAddingProduct] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
 
   const storeId = localStorage.getItem("storeId");
   const token = localStorage.getItem("token");
 
   // Fetch all categories
   const listCategories = async () => {
-    if (!storeId || !token) return alert("Store ID or token not found");
+    if (!storeId || !token) {
+      toast.error("Store ID or token not found");
+      return;
+    }
+    
     try {
-      setLoadingCategory(true);
+      setLoadingCategories(true);
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/category`,
         {
@@ -43,6 +53,7 @@ const CreateMenuPage = () => {
           },
         }
       );
+      
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
 
@@ -51,20 +62,23 @@ const CreateMenuPage = () => {
         name: cat.name,
         items: cat.items || [],
       }));
+      
       setCategories(formatted);
       if (formatted.length > 0 && !activeCategory) {
         setActiveCategory(formatted[0].id);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
     } finally {
-      setLoadingCategory(false);
+      setLoadingCategories(false);
     }
   };
 
   // Fetch products for a specific category
   const listProductsByCategory = async (categoryId: string) => {
     if (!storeId || !token) return;
+    
     try {
       setLoadingProducts(true);
       const response = await fetch(
@@ -76,6 +90,7 @@ const CreateMenuPage = () => {
           },
         }
       );
+      
       if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
       const filtered = data.filter(
@@ -84,6 +99,7 @@ const CreateMenuPage = () => {
       setProducts(filtered);
     } catch (error) {
       console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
     } finally {
       setLoadingProducts(false);
     }
@@ -92,8 +108,14 @@ const CreateMenuPage = () => {
   // Add new category
   const addCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCategory.trim()) return alert("Enter category name");
+    
+    if (!newCategory.trim()) {
+      toast.error("Please enter a category name");
+      return;
+    }
+    
     try {
+      setAddingCategory(true);
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/category`,
         {
@@ -105,22 +127,37 @@ const CreateMenuPage = () => {
           body: JSON.stringify({ name: newCategory }),
         }
       );
+      
       if (!response.ok) throw new Error("Failed to add category");
       const added = await response.json();
       setCategories((prev) => [...prev, added]);
+      setActiveCategory(added.id);
       setNewCategory("");
+      toast.success(`Category "${added.name}" created!`);
     } catch (error) {
       console.error("Error adding category:", error);
+      toast.error("Failed to create category");
+    } finally {
+      setAddingCategory(false);
     }
   };
 
   // Add new product
   const addProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price)
-      return alert("Please enter name and price");
+    
+    if (!newProduct.name.trim() || !newProduct.price) {
+      toast.error("Please enter product name and price");
+      return;
+    }
+    
+    if (!activeCategory) {
+      toast.error("Please select a category first");
+      return;
+    }
 
     try {
+      setAddingProduct(true);
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/product`,
         {
@@ -136,24 +173,26 @@ const CreateMenuPage = () => {
           }),
         }
       );
+      
       if (!response.ok) throw new Error("Failed to add product");
       const added = await response.json();
       setProducts((prev) => [...prev, added]);
       setNewProduct({ name: "", price: "" });
+      toast.success(`Product "${added.name}" added!`);
     } catch (error) {
       console.error("Error adding product:", error);
+      toast.error("Failed to add product");
+    } finally {
+      setAddingProduct(false);
     }
   };
 
   // Delete product
   const deleteProduct = async (productId: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-    if (!confirmDelete) return;
-
+    const product = products.find(p => p.id === productId);
+    
     try {
-      setLoadingDelete(true);
+      setDeletingProductId(productId);
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/product/${productId}`,
         {
@@ -166,45 +205,32 @@ const CreateMenuPage = () => {
       );
 
       if (response.ok) {
-        alert("Product deleted successfully");
         setProducts((prev) => prev.filter((p) => p.id !== productId));
+        toast.success(`"${product?.name}" deleted successfully`);
       } else {
-        alert(`Failed to delete product: ${response.statusText}`);
+        toast.error(`Failed to delete product`);
       }
     } catch (error) {
       console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
     } finally {
-      setLoadingDelete(false);
+      setDeletingProductId(null);
     }
   };
 
   // Delete category (and its products)
   const deleteCategory = async (categoryId: string) => {
-    const confirmDelete = window.confirm(
-      "Deleting this category will also delete all products under it. Proceed?"
-    );
-    if (!confirmDelete) return;
+    const category = categories.find(c => c.id === categoryId);
+    const categoryProducts = products.filter(p => p.categoryId === categoryId);
+    
+    if (categoryProducts.length > 0) {
+      toast.error(`Cannot delete category with ${categoryProducts.length} product(s). Delete products first.`);
+      return;
+    }
 
     try {
-      setLoadingDelete(true);
+      setDeletingCategoryId(categoryId);
 
-      // Delete all products under category
-      for (const product of products.filter(
-        (p) => p.categoryId === categoryId
-      )) {
-        await fetch(
-          `https://wavescan-backend.vercel.app/api/store/${storeId}/product/${product.id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      // Delete the category itself
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/category/${categoryId}`,
         {
@@ -217,18 +243,25 @@ const CreateMenuPage = () => {
       );
 
       if (response.ok) {
-        alert("Category deleted successfully");
-        setCategories((prev) => prev.filter((c) => c.id !== categoryId));
-        if (activeCategory === categoryId && categories.length > 0) {
-          setActiveCategory(categories[0].id);
+        const remainingCategories = categories.filter((c) => c.id !== categoryId);
+        setCategories(remainingCategories);
+        
+        if (activeCategory === categoryId && remainingCategories.length > 0) {
+          setActiveCategory(remainingCategories[0].id);
+        } else if (remainingCategories.length === 0) {
+          setActiveCategory("");
+          setProducts([]);
         }
+        
+        toast.success(`Category "${category?.name}" deleted`);
       } else {
-        alert(`Failed to delete category: ${response.statusText}`);
+        toast.error("Failed to delete category");
       }
     } catch (error) {
       console.error("Error deleting category:", error);
+      toast.error("Failed to delete category");
     } finally {
-      setLoadingDelete(false);
+      setDeletingCategoryId(null);
     }
   };
 
@@ -240,142 +273,291 @@ const CreateMenuPage = () => {
     if (activeCategory) listProductsByCategory(activeCategory);
   }, [activeCategory]);
 
+  const currentCategoryName = categories.find((c) => c.id === activeCategory)?.name;
+
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-transparent backdrop-blur-md">
-      <div className="max-w-4xl mx-auto">
-        {/* Title */}
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
-          Manage Menu
-        </h1>
-
-        {/* Add New Category */}
-        <form
-          onSubmit={addCategory}
-          className="bg-white/80 border border-gray-100 shadow-md rounded-xl p-4 md:p-6 mb-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Add New Category
-          </h3>
-          <div className="flex flex-col md:flex-row gap-3">
-            <input
-              type="text"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="Enter category name"
-              className="border border-gray-300 rounded-lg px-3 py-2 flex-1 focus:outline-none focus:ring focus:ring-green-200"
-            />
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Category
-            </button>
-          </div>
-        </form>
-
-        {/* Categories */}
-        {loadingCategory ? (
-          <p className="text-gray-500">Loading categories...</p>
-        ) : (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border ${
-                  activeCategory === cat.id
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <button onClick={() => setActiveCategory(cat.id)}>
-                  {cat.name}
-                </button>
-                <button
-                  onClick={() => deleteCategory(cat.id)}
-                  className="text-red-500 hover:text-red-700 transition"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Add Product Form */}
-        <form
-          onSubmit={addProduct}
-          className="bg-white/80 border border-gray-100 shadow-md rounded-xl p-4 md:p-6 mb-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Add Product
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input
-              type="text"
-              value={newProduct.name}
-              onChange={(e) =>
-                setNewProduct((prev) => ({ ...prev, name: e.target.value }))
-              }
-              placeholder="Product Name"
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-green-200"
-            />
-            <input
-              type="number"
-              value={newProduct.price}
-              onChange={(e) =>
-                setNewProduct((prev) => ({ ...prev, price: e.target.value }))
-              }
-              placeholder="Price (GHS)"
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-green-200"
-            />
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-1 bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2 transition-colors"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Product
-            </button>
-          </div>
-        </form>
-
-        {/* Product List */}
-        <div className="bg-white/80 border border-gray-100 shadow-md rounded-xl p-4 md:p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Products</h3>
-
-          {loadingProducts ? (
-            <p className="text-gray-500">Loading products...</p>
-          ) : products.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">
-              No products in this category.
+    <>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#10B981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Menu Management
+            </h1>
+            <p className="text-gray-600 text-sm md:text-base">
+              Organize your menu by creating categories and adding products
             </p>
-          ) : (
-            <div className="space-y-2">
-              {products.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{item.name}</p>
-                    <p className="text-sm text-gray-600">
-                      GHS {item.price.toFixed(2)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => deleteProduct(item.id!)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                  >
-                    {loadingDelete ? <ClipLoader size={16} /> : <Trash2 className="w-5 h-5" />}
-                  </button>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* LEFT COLUMN - Category Management */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Add Category Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <FolderOpen className="w-5 h-5 text-blue-500" />
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Create Category
+                  </h2>
                 </div>
-              ))}
+                
+                <form onSubmit={addCategory} className="space-y-3">
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="e.g., Drinks, Main Course"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                    disabled={addingCategory}
+                  />
+                  <button
+                    type="submit"
+                    disabled={addingCategory || !newCategory.trim()}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {addingCategory ? (
+                      <ClipLoader size={18} color="#fff" />
+                    ) : (
+                      <>
+                        <PlusCircle className="w-5 h-5" />
+                        Create Category
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* Categories List Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Categories
+                  </h2>
+                  {categories.length > 0 && (
+                    <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+                      {categories.length}
+                    </span>
+                  )}
+                </div>
+                
+                {loadingCategories ? (
+                  <div className="flex justify-center items-center py-12">
+                    <ClipLoader size={40} color="#3B82F6" />
+                  </div>
+                ) : categories.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm mb-1">No categories yet</p>
+                    <p className="text-gray-400 text-xs">Create your first category above</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                    {categories.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className={`group flex items-center justify-between p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                          activeCategory === cat.id
+                            ? "bg-green-50 border-green-500 shadow-sm"
+                            : "bg-gray-50 border-gray-200 hover:border-gray-300 hover:bg-gray-100"
+                        }`}
+                        onClick={() => setActiveCategory(cat.id)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium truncate ${
+                            activeCategory === cat.id ? "text-green-700" : "text-gray-700"
+                          }`}>
+                            {cat.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {cat.items?.length || 0} items
+                          </p>
+                        </div>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteCategory(cat.id);
+                          }}
+                          disabled={deletingCategoryId === cat.id}
+                          className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            activeCategory === cat.id 
+                              ? "hover:bg-red-100 text-red-500" 
+                              : "hover:bg-red-50 text-gray-400 hover:text-red-500"
+                          }`}
+                          title="Delete category"
+                        >
+                          {deletingCategoryId === cat.id ? (
+                            <ClipLoader size={14} color="#EF4444" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+
+            {/* RIGHT COLUMN - Product Management */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Add Product Card */}
+              {activeCategory && (
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Package className="w-5 h-5 text-green-500" />
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Add Product to "{currentCategoryName}"
+                    </h2>
+                  </div>
+
+                  <form onSubmit={addProduct} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Product Name
+                        </label>
+                        <input
+                          type="text"
+                          value={newProduct.name}
+                          onChange={(e) =>
+                            setNewProduct((prev) => ({ ...prev, name: e.target.value }))
+                          }
+                          placeholder="e.g., Coca Cola"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                          disabled={addingProduct}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Price (GHS)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={newProduct.price}
+                          onChange={(e) =>
+                            setNewProduct((prev) => ({ ...prev, price: e.target.value }))
+                          }
+                          placeholder="0.00"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                          disabled={addingProduct}
+                        />
+                      </div>
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={addingProduct || !newProduct.name.trim() || !newProduct.price}
+                      className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {addingProduct ? (
+                        <ClipLoader size={18} color="#fff" />
+                      ) : (
+                        <>
+                          <PlusCircle className="w-5 h-5" />
+                          Add Product
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Products List Card */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {currentCategoryName ? `Products in "${currentCategoryName}"` : "Products"}
+                  </h2>
+                  {products.length > 0 && (
+                    <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
+                      {products.length}
+                    </span>
+                  )}
+                </div>
+
+                {!activeCategory ? (
+                  <div className="text-center py-16">
+                    <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg mb-2">No Category Selected</p>
+                    <p className="text-gray-400 text-sm">Select a category to view and manage products</p>
+                  </div>
+                ) : loadingProducts ? (
+                  <div className="flex justify-center items-center py-16">
+                    <ClipLoader size={40} color="#10B981" />
+                  </div>
+                ) : products.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg mb-2">No Products Yet</p>
+                    <p className="text-gray-400 text-sm">Add your first product using the form above</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                    {products.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group flex items-center justify-between bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all"
+                      >
+                        <div className="flex-1 min-w-0 pr-4">
+                          <h3 className="font-semibold text-gray-900 truncate text-lg">
+                            {item.name}
+                          </h3>
+                          <p className="text-2xl font-bold text-green-600 mt-1">
+                            GHS {item.price.toFixed(2)}
+                          </p>
+                        </div>
+                        
+                        <button
+                          onClick={() => deleteProduct(item.id!)}
+                          disabled={deletingProductId === item.id}
+                          className="flex-shrink-0 p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group-hover:scale-110"
+                          title="Delete product"
+                        >
+                          {deletingProductId === item.id ? (
+                            <ClipLoader size={20} color="#EF4444" />
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
