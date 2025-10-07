@@ -265,8 +265,12 @@ const CreateMenuPage = () => {
     }
   };
 
+
+
+
   useEffect(() => {
     listCategories();
+   // getMenu();
   }, []);
 
   useEffect(() => {

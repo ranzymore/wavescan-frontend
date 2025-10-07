@@ -1,6 +1,6 @@
 import { MoreVertical,Eye,QrCode } from "lucide-react"
 
-const MenuCard = ({ title, description, items, status, lastUpdated }:{title: string, description: string, items: number, status: string, lastUpdated: string}) => {
+const MenuCard = ({ title, description, items, status, lastUpdated }:{title: string, description?: string, items: number, status: string, lastUpdated: string}) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start mb-4">

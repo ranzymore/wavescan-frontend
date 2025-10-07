@@ -7,10 +7,11 @@ import SlideMenus from "../component/SlideMenus";
   
 
 
-
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+
 
   const recentActivity = [
     { action: "Menu 'Lunch Special' updated", time: "2 hours ago" },
@@ -97,15 +98,17 @@ const Dashboard = () => {
   </div>
 </div>
 
-
-      {/* Quick Actions */}
-      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-        <h3 className="text-base md:text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="flex flex-col-2 md:flex-row gap-3">
-          <Button name=" New Menu" bgColor="bg-green-500" handleClick={() => navigate("/create_menu")} />
-          <Button name="Analytics" bgColor="bg-blue-500" handleClick={() => console.log("Navigate to /analytics")} />
-        </div>
-      </div>
+{/* Quick Actions */}
+<div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+  <h3 className="text-base md:text-lg font-semibold mb-4">Quick Actions</h3>
+  <div className="grid grid-cols-1 md:flex md:flex-row gap-3">
+    <Button 
+      name="Category Management" 
+      bgColor="bg-blue-500" 
+      handleClick={() => navigate("/category_management")} 
+    />
+  </div>
+</div>
 
       {/* Search and Filter */}
       <div className="flex flex-col md:flex-row gap-3 mb-6">
