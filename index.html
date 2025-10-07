@@ -2,14 +2,71 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+
+    <!-- Title and Description -->
+    <title>WaveScan | Smart Restaurant Menu & QR Management</title>
+    <meta
+      name="description"
+      content="WaveScan helps restaurants manage digital menus, track QR code scans, and gain insights from customer engagement — all in one easy dashboard."
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./src/assets/logo.pngs" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#2563eb" />
+
+    <!-- Open Graph Meta (for sharing) -->
+    <meta property="og:title" content="WaveScan | Smart Restaurant Menu Manager" />
+    <meta
+      property="og:description"
+      content="Digitize your restaurant menus, monitor QR scans, and manage all menu updates with ease using WaveScan."
+    />
+    <meta property="og:image" content="/wavescan-banner.png" />
+    <meta property="og:type" content="website" />
+
+    <!-- Manifest (optional, for PWA support) -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Font and Base Styles -->
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f9fafb;
+        color: #1f2937;
+        margin: 0;
+        padding: 0;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      /* Add a smooth fade-in when the app loads */
+      #root {
+        opacity: 0;
+        animation: fadeIn 0.6s ease-in-out forwards;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- Entry point for React + Vite -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
