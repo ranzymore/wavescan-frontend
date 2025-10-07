@@ -1,4 +1,3 @@
-import Button from "./Button"
 
 type MenuItemsProps ={
     image: string;
@@ -18,8 +17,8 @@ const MenuItems = ({ image, title, description, price }: MenuItemsProps) => {
                   <p className="text-sm text-gray-500">{description}</p>
                     {/* Price and Order */}
                 <div className="flex justify-between items-center mt-4">
-                    <span className="text-white font-semibold font-serif">{price}</span>
-                    <Button name="Order" bgColor="bg-green-500" handleClick={() => {}} />
+                    <span onClick={() => {}} className="text-white font-semibold font-serif">{price}</span>
+                    {/* <Button name="Order" bgColor="bg-green-500" handleClick={() => {}} /> */}
                 </div>
         </div>
     </>

@@ -1,16 +1,20 @@
 import React from 'react'
 
-type ButtonProps ={
+type ButtonProps = {
     name: string,
     bgColor: string,
-    handleClick: ()=>void
-}
-const Button = ({name, bgColor, handleClick}: ButtonProps) => {
-  return (
-
-          <button className={`w-30 h-10 ${bgColor}  rounded-2xl text-1xl text-white font-serif `} onClick={handleClick}>
-             {name}
-          </button>  )
+    handleClick: () => void
 }
 
-export default Button
+const Button = ({ name, bgColor, handleClick }: ButtonProps) => {
+    return (
+        <button 
+            onClick={handleClick}
+            className={`${bgColor} text-1xl text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 font-medium border border-gray-100 hover:bg-gray-50`}
+        >
+            {name}
+        </button>
+    )
+}
+
+export default Button;

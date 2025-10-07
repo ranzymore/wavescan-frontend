@@ -1,46 +1,36 @@
-import { Share2, Trash2, Copy } from "lucide-react";
-import MenuItems from "../component/MenuItems";
-import bgImage from "../assets/fbg.jpeg"; 
+import { MoreVertical,Eye,QrCode } from "lucide-react"
 
-const MenuCard = () => {
+const MenuCard = ({ title, description, items, status, lastUpdated }:{title: string, description: string, items: number, status: string, lastUpdated: string}) => {
   return (
-    <div
-        className="relative min-h-[70vh] bg-cover bg-center rounded-2xl border-b-4 border-green-500 overflow-hidden"
-        style={{ backgroundImage: `url(${bgImage})` }}
-      >
-        {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-black/40 rounded-2xl"></div>
-
-        {/* Title */}
-        <h1 className="relative z-10 text-4xl p-16 text-white font-bold">
-          <span className="animate-bounce">Wave</span>
-          <span className="text-green-300 animate-pulse">Scan</span>
-        </h1>
-
-        {/* Menu Details */}
-        <div className="relative z-10 p-4 flex flex-col h-[60%]">
-          {/* Action Buttons */}
-          <div className="flex flex-row justify-end gap-6 mb-6">
-            <button>
-              <Share2 className="w-5 h-5 text-white hover:text-green-300" />
-            </button>
-            <button>
-              <Copy className="w-5 h-5 text-white hover:text-green-300" />
-            </button>
-            <button>
-              <Trash2 className="w-5 h-5 text-white hover:text-red-400" />
-            </button>
-          </div>
-
-          {/* Menu Items Scrollable */}
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-            <MenuItems image="/src/assets/banku.jpeg" title="Banku" description="A delicious Ghanaian dish made from fermented corn and cassava dough." price="GHS20.00" />
-            <MenuItems image="/src/assets/jollof.jpeg" title="Jollof Rice" description="A popular West African dish made with rice, tomatoes, and spices." price="GHS25.00" />
-            <MenuItems image="/src/assets/waakye.jpeg" title="Waakye" description="A traditional Ghanaian dish made with rice and beans." price="GHS15.00" />
-            <MenuItems image="/src/assets/fried_rice.jpeg" title="Fried Rice" description="A flavorful rice dish stir-fried with vegetables and spices." price="GHS18.00" />
-          </div>
+    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start mb-4">
+      <div className="flex-1">
+        <h3 className="font-semibold text-lg text-gray-900 mb-1">{title}</h3>
+        <p className="text-gray-500 text-sm mb-2">{description}</p>
+        <div className="flex items-center gap-4 text-xs text-gray-400">
+          <span>{items} items</span>
+          <span className={`px-2 py-1 rounded-full ${status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+            {status}
+          </span>
         </div>
       </div>
+      <button className="p-1 hover:bg-gray-100 rounded">
+        <MoreVertical className="w-4 h-4 text-gray-400" />
+      </button>
+    </div>
+    
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-gray-400">Updated {lastUpdated}</span>
+      <div className="flex gap-2">
+        <button className="p-1 hover:bg-gray-100 rounded" title="View Menu">
+          <Eye className="w-4 h-4 text-gray-600" />
+        </button>
+        <button className="p-1 hover:bg-gray-100 rounded" title="Download QR">
+          <QrCode className="w-4 h-4 text-gray-600" />
+        </button>
+      </div>
+    </div>
+  </div>
   )
 }
 

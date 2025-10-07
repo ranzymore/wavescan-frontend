@@ -4,18 +4,18 @@ import SignIn from './admin/SignIn';
 import SignUp from './admin/SignUp';
 import Home from './component/Home';
 import Dashboard from './admin/Dashboard';
-import Menu from './admin/CreateMenu';
+import CreateMenuPage from './admin/CreateMenu';
 
 function App() {
 
   return (
     <div className='flex flex-col min-h-screen '>
     <Routes>
-      <Route path ='/' element = {<Dashboard/>}/>
+      <Route path ='/' element = {<SignIn/>}/>
       <Route path ='/signup' element = {<SignUp/>}/>
       <Route path ='/signin' element = {<SignIn/>}/>
       <Route path='/dashboard' element ={<Dashboard/>}/>
-      <Route path='/menu' element ={<Menu/>}/>
+      <Route path='/create_menu' element ={<CreateMenuPage/>}/>
       <Route path='/home' element = {<Home/>}/>
     </Routes>
 

@@ -1,16 +1,16 @@
-import React from "react";
 
-const CategoryCard = () => {
+const CategoryCard = ({ name , count, isActive }: { name: string, count: number, isActive: boolean }) => {
   return (
-    <div className="flex flex-col justify-center items-center border border-green-800 rounded-2xl h-40 w-32 p-2">
-      {/* Image/placeholder area */}
-      <div className="h-24 w-full bg-gray-200 rounded-md"></div>
-
-      {/* Category text */}
-      <p className="mt-2 text-sm font-medium text-gray-700 truncate w-full text-center">
-        Category 1
-      </p>
-    </div>
+    <button 
+    className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+      isActive 
+        ? 'bg-green-500 text-white' 
+        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+    }`}
+  >
+    {name}
+    {count > 0 && <span className="ml-2 text-xs">({count})</span>}
+  </button>
   );
 };
 
