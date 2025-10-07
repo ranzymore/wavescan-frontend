@@ -24,12 +24,12 @@ const CreateMenuPage = () => {
   const [newCategory, setNewCategory] = useState("");
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [loadingDelete,setLoadingDelete] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   const storeId = localStorage.getItem("storeId");
   const token = localStorage.getItem("token");
 
-  //  Fetch all categories
+  // Fetch all categories
   const listCategories = async () => {
     if (!storeId || !token) return alert("Store ID or token not found");
     try {
@@ -46,16 +46,15 @@ const CreateMenuPage = () => {
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
 
-      const formatted = data.map((cat: any) => ({
+      const formatted = data.map((cat: CategoryType) => ({
         id: cat.id,
         name: cat.name,
-        items: cat.products || [],
+        items: cat.items || [],
       }));
       setCategories(formatted);
       if (formatted.length > 0 && !activeCategory) {
         setActiveCategory(formatted[0].id);
       }
-      console.log("Categories fetched:", formatted);
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -110,7 +109,6 @@ const CreateMenuPage = () => {
       const added = await response.json();
       setCategories((prev) => [...prev, added]);
       setNewCategory("");
-      console.log("Category added:", added);
     } catch (error) {
       console.error("Error adding category:", error);
     }
@@ -142,19 +140,20 @@ const CreateMenuPage = () => {
       const added = await response.json();
       setProducts((prev) => [...prev, added]);
       setNewProduct({ name: "", price: "" });
-      console.log("Product added:", added);
     } catch (error) {
       console.error("Error adding product:", error);
     }
   };
 
-  // Delete product (with confirmation + backend delete)
+  // Delete product
   const deleteProduct = async (productId: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
     if (!confirmDelete) return;
 
     try {
-      setLoadingDelete(true)
+      setLoadingDelete(true);
       const response = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/product/${productId}`,
         {
@@ -167,15 +166,69 @@ const CreateMenuPage = () => {
       );
 
       if (response.ok) {
-        setLoadingDelete(false);
         alert("Product deleted successfully");
         setProducts((prev) => prev.filter((p) => p.id !== productId));
       } else {
         alert(`Failed to delete product: ${response.statusText}`);
       }
     } catch (error) {
-      setLoadingDelete(false);
       console.error("Error deleting product:", error);
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
+  // Delete category (and its products)
+  const deleteCategory = async (categoryId: string) => {
+    const confirmDelete = window.confirm(
+      "Deleting this category will also delete all products under it. Proceed?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      setLoadingDelete(true);
+
+      // Delete all products under category
+      for (const product of products.filter(
+        (p) => p.categoryId === categoryId
+      )) {
+        await fetch(
+          `https://wavescan-backend.vercel.app/api/store/${storeId}/product/${product.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
+      // Delete the category itself
+      const response = await fetch(
+        `https://wavescan-backend.vercel.app/api/store/${storeId}/category/${categoryId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        alert("Category deleted successfully");
+        setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+        if (activeCategory === categoryId && categories.length > 0) {
+          setActiveCategory(categories[0].id);
+        }
+      } else {
+        alert(`Failed to delete category: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
@@ -227,17 +280,24 @@ const CreateMenuPage = () => {
         ) : (
           <div className="flex flex-wrap gap-2 mb-6">
             {categories.map((cat) => (
-              <button
+              <div
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border ${
                   activeCategory === cat.id
                     ? "bg-green-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {cat.name}
-              </button>
+                <button onClick={() => setActiveCategory(cat.id)}>
+                  {cat.name}
+                </button>
+                <button
+                  onClick={() => deleteCategory(cat.id)}
+                  className="text-red-500 hover:text-red-700 transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -303,11 +363,11 @@ const CreateMenuPage = () => {
                       GHS {item.price.toFixed(2)}
                     </p>
                   </div>
-                   <button
+                  <button
                     onClick={() => deleteProduct(item.id!)}
                     className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
                   >
-                   { loadingDelete ? <ClipLoader/> : <Trash2 className="w-5 h-5" />}
+                    {loadingDelete ? <ClipLoader size={16} /> : <Trash2 className="w-5 h-5" />}
                   </button>
                 </div>
               ))}
