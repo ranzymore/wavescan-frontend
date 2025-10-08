@@ -133,9 +133,7 @@ const SlideMenus = () => {
     <div>
       {/* Header with count */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-          Your Menus
-        </h2>
+      
         <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
           {menu.length} {menu.length === 1 ? 'Menu' : 'Menus'}
         </span>

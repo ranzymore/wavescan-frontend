@@ -1,6 +1,5 @@
 import { Bell, MoreVertical, Plus, Search, Filter } from "lucide-react";
 import Button from "../component/Button";
-import CategoryCard from "../component/CategoryCard";
 import { useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import SlideMenus from "../component/SlideMenus";
@@ -77,19 +76,7 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Menu Categories Filter */}
-      <div className="mb-6">
-        <h3 className="text-base md:text-lg font-semibold mb-3">Filter by Category</h3>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          <CategoryCard name="All" count={28} isActive={true} />
-          <CategoryCard name="Breakfast" count={8} isActive={false} />
-          <CategoryCard name="Lunch" count={12} isActive={false} />
-          <CategoryCard name="Dinner" count={15} isActive={false} />
-          <CategoryCard name="Drinks" count={6} isActive={false} />
-          <CategoryCard name="Desserts" count={4} isActive={false} />
-          <CategoryCard name="Specials" count={3} isActive={false} />
-        </div>
-      </div>
+      
 
       {/* My Menus Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">

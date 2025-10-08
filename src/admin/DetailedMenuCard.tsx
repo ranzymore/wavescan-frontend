@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { QrCode, Pencil, ArrowLeft, Circle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import ClipLoader from "react-spinners/ClipLoader";
 
 type Product = {
   id: string;
@@ -68,7 +69,7 @@ const DetailedMenuCard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-gray-500">
-        <p className="text-sm mb-3">Loading menu details...</p>
+        <p className="text-sm mb-3">Loading menu details... <ClipLoader/></p>
         <button
           onClick={() => navigate(-1)}
           className="text-blue-600 hover:underline"

@@ -100,7 +100,7 @@ const CategoryPage: React.FC = () => {
   if (selectedCategoryId) return <ProductManagementPage id={selectedCategoryId} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-black-100 via-purple-100 to-black-100 p-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-tight">
           Manage Restaurant Menu
@@ -108,7 +108,7 @@ const CategoryPage: React.FC = () => {
 
         {/* Add Category */}
         <div className="flex justify-center mb-10">
-          <div className="flex w-full md:w-1/2 bg-white/60 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden border border-gray-200">
+          <div className="flex w-full md:w-1/2 bg-white/90 backdrop-blur-lg shadow-lg rounded-xl overflow-hidden border border-gray-200">
             <input
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
@@ -117,7 +117,7 @@ const CategoryPage: React.FC = () => {
             />
             <button
               onClick={addCategory}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 hover:opacity-90 transition-all flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 hover:opacity-90 transition-all flex items-center gap-2"
             >
               <PlusCircle size={18} /> Add
             </button>
