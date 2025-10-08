@@ -6,6 +6,7 @@ import Home from './component/Home';
 import Dashboard from './admin/Dashboard';
 import CreateMenuPage from './admin/CreateMenu';
 import CategoryManagementPage from './admin/CategoryManagement';
+import DetailedMenuCard from './admin/DetailedMenuCard';
 
 function App() {
 
@@ -18,7 +19,9 @@ function App() {
       <Route path='/dashboard' element ={<Dashboard/>}/>
       <Route path='/category_management' element ={<CategoryManagementPage/>}/>
       <Route path='/create_menu' element ={<CreateMenuPage/>}/>
+      <Route path = '/detailed_menu/:categoryId' element ={<DetailedMenuCard/>}/>
       <Route path='/home' element = {<Home/>}/>
+
     </Routes>
 
    

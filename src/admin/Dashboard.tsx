@@ -1,9 +1,10 @@
-import { Bell, MoreVertical, QrCode, BarChart3, Eye, Settings, Plus, Search, Filter } from "lucide-react";
+import { Bell, MoreVertical, Plus, Search, Filter } from "lucide-react";
 import Button from "../component/Button";
 import CategoryCard from "../component/CategoryCard";
 import { useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import SlideMenus from "../component/SlideMenus";
+import StatsOverview from "./StatsOverview";
   
 
 
@@ -19,12 +20,7 @@ const Dashboard = () => {
     { action: "New menu 'Happy Hour' created", time: "1 day ago" }
   ];
 
-  const stats = {
-    totalMenus: 5,
-    totalScans: 1234,
-    viewsToday: 87,
-    activeMenus: 4
-  };
+ 
     
   return (
     <div className="p-4 w-full md:p-6 mx-auto">
@@ -48,55 +44,7 @@ const Dashboard = () => {
       </div>
 
      {/* Stats Overview */}
-<div className="grid grid-cols-2 w-full md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <div className="bg-white/90 backdrop-blur-md p-5 md:p-6 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 transition-all duration-300">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">Total Menus</p>
-        <p className="text-2xl font-bold text-gray-900">{stats.totalMenus}</p>
-      </div>
-      <div className="bg-blue-100 p-3 rounded-xl">
-        <QrCode className="w-6 h-6 text-blue-600" />
-      </div>
-    </div>
-  </div>
-
-  <div className="bg-white/90 backdrop-blur-md p-5 md:p-6 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 transition-all duration-300">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">Total Scans</p>
-        <p className="text-2xl font-bold text-gray-900">{stats.totalScans}</p>
-      </div>
-      <div className="bg-green-100 p-3 rounded-xl">
-        <BarChart3 className="w-6 h-6 text-green-600" />
-      </div>
-    </div>
-  </div>
-
-  <div className="bg-white/90 backdrop-blur-md p-5 md:p-6 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 transition-all duration-300">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">Views Today</p>
-        <p className="text-2xl font-bold text-gray-900">{stats.viewsToday}</p>
-      </div>
-      <div className="bg-purple-100 p-3 rounded-xl">
-        <Eye className="w-6 h-6 text-purple-600" />
-      </div>
-    </div>
-  </div>
-
-  <div className="bg-white/90 backdrop-blur-md p-5 md:p-6 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 transition-all duration-300">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">Active Menus</p>
-        <p className="text-2xl font-bold text-gray-900">{stats.activeMenus}</p>
-      </div>
-      <div className="bg-orange-100 p-3 rounded-xl">
-        <Settings className="w-6 h-6 text-orange-600" />
-      </div>
-    </div>
-  </div>
-</div>
+   <StatsOverview/>
 
 {/* Quick Actions */}
 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
@@ -131,7 +79,7 @@ const Dashboard = () => {
 
       {/* Menu Categories Filter */}
       <div className="mb-6">
-        <h3 className="text-base md:text-lg font-semibold mb-3">Filter by Menu Type</h3>
+        <h3 className="text-base md:text-lg font-semibold mb-3">Filter by Category</h3>
         <div className="flex gap-3 overflow-x-auto pb-2">
           <CategoryCard name="All" count={28} isActive={true} />
           <CategoryCard name="Breakfast" count={8} isActive={false} />
@@ -145,7 +93,7 @@ const Dashboard = () => {
 
       {/* My Menus Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
-        <h2 className="text-xl md:text-2xl font-semibold">My Menus</h2>
+        <h2 className="text-xl md:text-2xl font-semibold">My Menus Category</h2>
         <button 
           onClick={() => navigate('/menu')}
           className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1"

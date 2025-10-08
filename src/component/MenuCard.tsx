@@ -1,8 +1,18 @@
 import { MoreVertical,Eye,QrCode } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
-const MenuCard = ({ title, description, items, status, lastUpdated }:{title: string, description?: string, items: number, status: string, lastUpdated: string}) => {
+const MenuCard = ({categoryId, title, description, items, status, lastUpdated }:{categoryId: string, title: string, description?: string, items: number, status: string, lastUpdated: string}) => {
+  const navigate = useNavigate();
+  const handleClick = ()=>{
+    navigate(`/detailed_menu/${categoryId}`);
+  }
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:shadow-md transition-shadow">
+    <div
+    /// Take User to Detailed View of the Menu 
+
+    onClick={handleClick} 
+    className="bg-white p-6 rounded-xl shadow-sm border border-gray-300 hover:shadow-md transition-shadow">
     <div className="flex justify-between items-start mb-4">
       <div className="flex-1">
         <h3 className="font-semibold text-lg text-gray-900 mb-1">{title}</h3>

@@ -150,6 +150,7 @@ const SlideMenus = () => {
               className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] px-2 py-2"
             >
               <MenuCard
+                categoryId={item.id}
                 title={item.name}
                 items={item.items}
                 status={item.status}
