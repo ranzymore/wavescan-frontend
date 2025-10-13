@@ -23,10 +23,9 @@ const MenuView = () => {
 
   const getMenu = async () => {
     const storedStoreId = localStorage.getItem("storeId");
-    const token = localStorage.getItem("token");
 
-    if (!storedStoreId || !token) {
-      setError("Store ID or token not found");
+    if (!storedStoreId) {
+      setError("Store ID not found");
       return;
     }
 
