@@ -18,18 +18,14 @@ const MenuView = () => {
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [menuLoading, setMenuLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [storeId, setStoreId] = useState<string>("");
+  //const [storeId, setStoreId] = useState<string>("");
   const [storeName, setStoreName] = useState<string>("");
 
   const getMenu = async () => {
-    const storedStoreId = localStorage.getItem("storeId");
-
-    if (!storedStoreId) {
-      setError("Store ID not found");
+    if (!menuId) {
+      setError("Invalid store ID");
       return;
     }
-
-    setStoreId(storedStoreId);
 
     try {
       setMenuLoading(true);
@@ -118,8 +114,8 @@ const MenuView = () => {
   // Grid with Menus
   return (
     <div className="min-h-screen bg-gradient-to-br from-black-100 via-blue-200 to-black-100 p-6">
-      {/* Store ID Display */}
-      {storeId && (
+      {/* Store Name Display */}
+      {storeName && (
         <div className="flex items-center gap-2 mb-4 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 w-fit">
           <span className="text-sm text-blue-700">
             <span className="font-medium">Store Name:</span> {storeName}
