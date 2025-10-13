@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import useEmblaCarousel from 'embla-carousel-react'
-import MenuCard from './MenuCard'
+import MenuCard from '../component/MenuCard'
 import ClipLoader from 'react-spinners/ClipLoader'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle} from 'lucide-react'
+import { useParams } from 'react-router-dom'
 
 type MenuItem = {
   id: string;
@@ -13,31 +13,35 @@ type MenuItem = {
   lastUpdated: string;
 };
 
-const SlideMenus = () => {
+const MenuView = () => {
+  const { menuId } = useParams<{ menuId: string }>();
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [menuLoading, setMenuLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [storeId, setStoreId] = useState<string>("");
+  const [storeName, setStoreName] = useState<string>("");
 
   const getMenu = async () => {
-    const storeId = localStorage.getItem("storeId");
+    const storedStoreId = localStorage.getItem("storeId");
     const token = localStorage.getItem("token");
 
-    if (!storeId || !token) {
+    if (!storedStoreId || !token) {
       setError("Store ID or token not found");
       return;
     }
+
+    setStoreId(storedStoreId);
 
     try {
       setMenuLoading(true);
       setError("");
       
       const response = await fetch(
-        `https://wavescan-backend.vercel.app/api/store/${storeId}/menu`,
+        `https://wavescan-backend.vercel.app/api/store/${menuId}/menu`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            //Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -48,6 +52,7 @@ const SlideMenus = () => {
 
       const data = await response.json();
       setMenu(data.categories || []); // Store the fetched menu data in state
+      setStoreName(data.name || ""); // Store the fetched store name in state
       console.log("Menu data:", data.categories);
     } catch (error) {
       console.error("Error fetching menu:", error);
@@ -61,27 +66,10 @@ const SlideMenus = () => {
     getMenu();
   }, []);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    containScroll: 'trimSnaps',
-    loop: menu.length > 1, // Only loop if there's more than 1 item
-    duration: 30,
-  });
-
-  useEffect(() => {
-    if (!emblaApi || menu.length <= 1) return; // Don't auto-scroll if only 1 item
-
-    const interval = setInterval(() => {
-      emblaApi.scrollNext();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [emblaApi, menu.length]);
-
   // Loading State
   if (menuLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-8 md:p-12">
+      <div className="bg-white rounded-lg shadow-md p-8 md:p-12 ">
         <div className="flex flex-col items-center justify-center gap-4">
           <ClipLoader color="#10B981" size={40} />
           <p className="text-gray-600 text-sm md:text-base">Loading menus...</p>
@@ -93,7 +81,7 @@ const SlideMenus = () => {
   // Error State
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg shadow-md p-6 md:p-8">
+      <div className="bg-red-50 border border-red-200 rounded-lg shadow-md  p-6 md:p-8">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <div>
@@ -128,52 +116,40 @@ const SlideMenus = () => {
     );
   }
 
-  // Carousel with Menus
+  // Grid with Menus
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-black-100 via-blue-200 to-black-100 p-6">
+      {/* Store ID Display */}
+      {storeId && (
+        <div className="flex items-center gap-2 mb-4 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 w-fit">
+          <span className="text-sm text-blue-700">
+            <span className="font-medium">Store Name:</span> {storeName}
+          </span>
+        </div>
+      )}
+
       {/* Header with count */}
       <div className="flex items-center justify-between mb-4">
-      
         <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
           {menu.length} {menu.length === 1 ? 'Menu' : 'Menus'}
         </span>
       </div>
 
-      {/* Carousel */}
-      <div className="overflow-hidden rounded-lg " ref={emblaRef}>
-        <div className="flex">
-          {menu.map((item) => (
-            <div
-              key={item.id}
-              className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] px-2 py-2"
-            >
-              <MenuCard
-                categoryId={item.id}
-                title={item.name}
-                items={item.items}
-                status={item.status}
-                lastUpdated={item.lastUpdated}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {menu.map((item) => (
+          <MenuCard
+            key={item.id}
+            categoryId={item.id}
+            title={item.name}
+            items={item.items}
+            status={item.status}
+            lastUpdated={item.lastUpdated}
+          />
+        ))}
       </div>
-
-      {/* Navigation Dots (optional) */}
-      {menu.length > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
-          {menu.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => emblaApi?.scrollTo(index)}
-              className="w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors"
-              aria-label={`Go to menu ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };
 
-export default SlideMenus;
+export default MenuView;

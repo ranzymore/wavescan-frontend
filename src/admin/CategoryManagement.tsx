@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PlusCircle, Trash2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductManagementPage from "./ProductManagement";
+import ClipLoader from "react-spinners/ClipLoader";
 
 type Product = {
   id: string;
@@ -21,9 +22,11 @@ const CategoryPage: React.FC = () => {
     const token = localStorage.getItem("token") || "YOUR_AUTH_TOKEN";
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState("");
+  const [loading,setLoading] = useState<boolean>(false)
 
   const listCategories = async () => {
     try {
+      setLoading(true);
       const res = await fetch(
         `https://wavescan-backend.vercel.app/api/store/${storeId}/category`,
         {
@@ -40,8 +43,11 @@ const CategoryPage: React.FC = () => {
         name: cat.name,
         items: cat.products || [],
       }));
+      setLoading(false);
       setCategories(formatted);
     } catch (err) {
+            setLoading(false);
+
       console.error(err);
       alert("Error fetching categories");
     }
@@ -93,6 +99,9 @@ const CategoryPage: React.FC = () => {
     }
   };
 
+
+ 
+
   useEffect(() => {
     listCategories();
   }, []);
@@ -100,7 +109,7 @@ const CategoryPage: React.FC = () => {
   if (selectedCategoryId) return <ProductManagementPage id={selectedCategoryId} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black-100 via-purple-100 to-black-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-black-100 via-blue-200 to-black-100 p-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 tracking-tight">
           Manage Restaurant Menu
@@ -117,7 +126,7 @@ const CategoryPage: React.FC = () => {
             />
             <button
               onClick={addCategory}
-              className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-5 hover:opacity-90 transition-all flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-500 to-blue-500 text-white px-1 hover:opacity-90 transition-all flex items-center gap-0.5"
             >
               <PlusCircle size={18} /> Add
             </button>
@@ -125,14 +134,15 @@ const CategoryPage: React.FC = () => {
         </div>
 
         {/* Category List */}
+        { !loading ?
         <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
-          {categories.map((cat) => (
+          { categories.map((cat) => (
             <motion.div
               key={cat.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.03 }}
-              className="bg-white/70 backdrop-blur-xl shadow-xl border border-gray-100 rounded-2xl p-5 flex flex-col justify-between hover:shadow-2xl transition-all"
+              className="bg-white/70 backdrop-blur-xl shadow-xl border border-gray-100 rounded-2xl p-5 flex flex-col justify-between hover:shadow-1xl transition-all"
             >
               <div>
                 <h2 className="text-lg font-semibold text-gray-800 mb-1">{cat.name}</h2>
@@ -155,7 +165,7 @@ const CategoryPage: React.FC = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </div> : <p className="px-25  m-15 place-content-center"><ClipLoader/></p>}
       </div>
     </div>
   );

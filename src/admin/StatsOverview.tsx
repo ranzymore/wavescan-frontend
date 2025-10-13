@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { QrCode, BarChart3, Eye, Settings } from "lucide-react";
+import ClipLoader from "react-spinners/ClipLoader";
 
 type Store = {
   id: string;
@@ -70,13 +71,8 @@ const StatsOverview: React.FC = () => {
     fetchStoreData();
   }, [storeId, token]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-32 text-gray-500 text-sm">
-        Loading stats...
-      </div>
-    );
-  }
+
+  
 
   return (
     <div className="grid grid-cols-2 w-full md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -86,7 +82,7 @@ const StatsOverview: React.FC = () => {
           <div>
             <p className="text-gray-500 text-sm">Total Menus</p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.totalMenus}
+              {loading ? <ClipLoader size={10} /> : stats.totalMenus}
             </p>
           </div>
           <div className="bg-blue-100 p-3 rounded-xl">
@@ -101,7 +97,7 @@ const StatsOverview: React.FC = () => {
           <div>
             <p className="text-gray-500 text-sm">Total Scans</p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.totalScans}
+              {loading ? <ClipLoader size={10} /> : stats.totalScans}
             </p>
           </div>
           <div className="bg-green-100 p-3 rounded-xl">
@@ -116,7 +112,7 @@ const StatsOverview: React.FC = () => {
           <div>
             <p className="text-gray-500 text-sm">Views Today</p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.viewsToday}
+              {loading ? <ClipLoader size={10} /> : stats.viewsToday}
             </p>
           </div>
           <div className="bg-purple-100 p-3 rounded-xl">
@@ -131,7 +127,7 @@ const StatsOverview: React.FC = () => {
           <div>
             <p className="text-gray-500 text-sm">Active Menus</p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.activeMenus}
+              {loading ? <ClipLoader size={10} /> : stats.activeMenus}
             </p>
           </div>
           <div className="bg-orange-100 p-3 rounded-xl">

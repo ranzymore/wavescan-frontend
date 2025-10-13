@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { QrCode, Pencil, ArrowLeft, Circle } from "lucide-react";
+import { QrCode, Share, ArrowLeft, Circle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -166,13 +166,13 @@ const DetailedMenuCard: React.FC = () => {
         {/* Footer Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
           <button className="bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 w-full sm:w-auto">
-            + Product
+            Order Now
           </button>
 
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900">
-              <Pencil size={16} />
-              <span className="text-sm">Edit</span>
+              <Share size={16} color="#4A5568" />
+              <span className="text-sm">Share Link</span>
             </button>
             <button
               className="flex items-center gap-1 text-gray-600 hover:text-gray-900"

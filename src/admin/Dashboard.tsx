@@ -22,14 +22,14 @@ const Dashboard = () => {
  
     
   return (
-    <div className="p-4 w-full md:p-6 mx-auto">
+    <div className="p-4 w-full md:p-6 mx-auto bg-gradient-to-br from-black-100 via-black-300 to-black-100 dark:bg-black">
       {/* Header Section */}
       <div className="mb-6 md:mb-8 flex flex-col md:flex-row justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
             Welcome back, <span className="text-green-600">admin</span>
           </h1>
-          <p className="text-gray-500 mt-1 text-sm md:text-base">
+          <p className="text-gray-500 dark:text-white mt-1 text-sm md:text-base">
             Manage your digital menus and track performance
           </p>
         </div>
@@ -46,8 +46,8 @@ const Dashboard = () => {
    <StatsOverview/>
 
 {/* Quick Actions */}
-<div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-  <h3 className="text-base md:text-lg font-semibold mb-4">Quick Actions</h3>
+<div className="bg-gray-300 p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+  <h3 className="text-base md:text-lg font-semibold mb-4 text-gray-800">Quick Actions</h3>
   <div className="grid grid-cols-1 md:flex md:flex-row gap-3">
     <Button 
       name="Category Management" 
@@ -80,7 +80,7 @@ const Dashboard = () => {
 
       {/* My Menus Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
-        <h2 className="text-xl md:text-2xl font-semibold">My Menus Category</h2>
+        <h2 className="text-xl md:text-2xl font-semibold text-black dark:text-white">My Menus Category</h2>
         <button 
           onClick={() => navigate('/menu')}
           className="text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
